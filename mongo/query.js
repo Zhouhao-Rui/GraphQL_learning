@@ -1,17 +1,17 @@
 const Article = require('./schema')
 const { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLSchema, GraphQLID } = require('graphql')
-const mongoose = require('mongoose')
 
 const ArticleType = new GraphQLObjectType({
   name: 'articles',
   fields: () => ({
+    _id: {type: GraphQLID},
     title: { type: GraphQLString },
     body: { type: GraphQLString }
   })
 })
 
 const RootMutation = new GraphQLObjectType({
-  name: 'Mutation',
+  name: 'RootMutation',
   fields: {
     addArticle: {
       type: ArticleType,
@@ -32,7 +32,8 @@ const RootMutation = new GraphQLObjectType({
         body: {type: GraphQLString}
       },
       async resolve(parents, args) {
-        const article = await Article.findByIdAndUpdate(args._id, {$set: {title: args.title, body: args.body}}).exec()
+        const article = await Article.findByIdAndUpdate(args._id, {$set: {title: args.title, body: args.body}}, {new: true}).exec()
+        console.log(article)
         return article
       }
     },
@@ -44,6 +45,7 @@ const RootMutation = new GraphQLObjectType({
       async resolve(parents, args) {
         const article = Article.findByIdAndDelete(args._id)
         return article
+        
       }
     }
   }
